@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Try Skyplink</title>
+    <script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
+</head>
+<body>
+
+<video id="myvideo" style="border: solid; border-color: aqua" autoplay muted></video>
+
+<script>
+    var skylink = new Skylink();
+
+    // notifies that a peer has joined the room. no video chatting/streaming YET.
+    skylink.on('peerJoined', function(peerId, peerInfo, isSelf){
+
+        console.log('peerJoined:', peerId, isSelf);
+
+        if(isSelf) return;  // myself. already have a video element. done.
+
+        // someone else wants to join and chat with us
+        var vid = document.createElement('video');
+        vid.style.transform = "rotateY(-180deg)";
+//        vid.style="transform: rotateY(-180deg);";
+        vid.autoplay = true;
+        vid.muted = true;   // to avoid feedback when testing locally
+        vid.id = peerId;    // needs to be unique per peer. rooms also have unique IDs
+        document.body.appendChild(vid);
+    });
+
+    skylink.on('incomingStream', function(peerId, stream, isSelf) {
+
+        console.log('incomingStream:', peerId, isSelf);
+
+        if(isSelf) return;
+
+        var vid = document.getElementById(peerId);  // video element created for that peer
+        attachMediaStream(vid, stream);             // function defined by skylink
+    });
+
+    // simply remove the video element when a peer leaves
+    skylink.on('peerLeft', function(peerId, peerInfo, isSelf){
+
+        console.log('peerLeft:', peerId);
+
+        var vid = document.getElementById(peerId);
+        document.body.removeChild(vid);
+    });
+
+    // if "I" (the user of this frontend) authorizes the access to his (or my, really) camera and phone
+    skylink.on('mediaAccessSuccess', function(stream) {
+
+        console.log('mediaAccessSuccess');
+
+        var vid = document.getElementById('myvideo');
+        attachMediaStream(vid, stream);
+    });
+
+    // initialize as a final step
+    skylink.init({
+        apiKey: '86c593e0-6ad9-4ccf-8220-f40f8c23cdef',
+        defaultRoom: "JJ's room"
+    }, function() {
+        skylink.joinRoom({
+            audio: true,
+            video: true
+        });
+    });
+
+</script>
+
+</body>
+</html>

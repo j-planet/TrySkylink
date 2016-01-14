@@ -1,0 +1,15 @@
+# WebStorm IDE stuff
+.idea/
+
+# node_modules
+node_modules/
+
+# created bundle
+public/bundle.js
+public/bundle.js.map
+
+# bootstrap css
+css/bootstrap-css/
+
+# skylink credentials
+skylink credentials.txt
