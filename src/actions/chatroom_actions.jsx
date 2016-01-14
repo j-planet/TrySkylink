@@ -1,7 +1,15 @@
 import Skylink from 'skylinkjs';
 
-export const SKYLINK_READY_STATE_CHG = 'SKYLINK_READY_STATE_CHG';
+export const CHANGE_ROOM_STATUS = 'CHANGE_ROOM_STATUS';
 
-export function skylinkReadyStateChg(statusCode) {
+export function change_room_status(roomStatusCode) {
 
+    const payload = roomStatusCode;
+
+    console.log('Action (change_room_status) fired a payload: ', payload);
+
+    return {
+        type: CHANGE_ROOM_STATUS,
+        payload: payload
+    };
 }

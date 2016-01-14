@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { skylinkReadyStateChg } from '../actions/chatroom_actions.jsx';
+import Constants from '../constants.jsx';
+import { change_room_status } from '../actions/chatroom_actions.jsx';
 
 
 
@@ -24,6 +25,17 @@ class VideoContainer extends Component {
         this.skylink.on('readyStateChange', (statusCode) => {
             switch (statusCode) {
                 case 0:
+                    this.props.change_room_status(Constants.RoomState.IDLE);
+                    return;
+                case 1:
+                    this.props.change_room_status(Constants.RoomState.CONNECTING);
+                    return;
+                case 2:
+                    this.props.change_room_status(Constants.RoomState.CONNECTED);
+                    return;
+                case 3:
+                    this.props.change_room_status(Constants.RoomState.LOCKED);
+                    return;
             }
         });
 
@@ -70,7 +82,7 @@ class VideoContainer extends Component {
 
 // ======== REDUX STUFF ==========
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ skylinkReadyStateChg }, dispatch);
+    return bindActionCreators({ change_room_status }, dispatch);
 }
 
 export default connect(null, mapDispatchToProps)(VideoContainer);
