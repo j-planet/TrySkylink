@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import ReduxPromise from 'redux-promise';
 
-import App from './components/App.jsx';
+import App from './containers/video_container.jsx';
 import rootReducer from './reducers/root_reducer.jsx';
 
 
