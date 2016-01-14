@@ -12,7 +12,7 @@ module.exports = {
     devtool: 'eval-source-map',
 
     entry: [
-        './src/entry.js'
+        './src/entry.jsx'
     ],
 
     output: {
