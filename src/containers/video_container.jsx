@@ -70,7 +70,11 @@ class VideoContainer extends Component {
 
         this.skylink.on('peerJoined', (peerId, peerInfo, isSelf) => {
 
-            if (isSelf) return;
+            if (isSelf)
+            {
+                console.log('.......Self issuing peerJoined. Doing nothing.');
+                return;
+            }
 
             if (this.props.room.status == Constants.RoomState.LOCKED ||
                 this.props.room.status == Constants.RoomState.IDLE)
@@ -80,6 +84,14 @@ class VideoContainer extends Component {
             }
 
             this.props.add_peer_no_stream(peerId, 'Guest ' + peerId);
+
+            // lock the room if it's full
+            //if (this.props.users.length === Constants.MaxUsersPerRoom)
+            //{
+            //    Console.log('The room has just become full.');
+            //    this.skylink.lockRoom();
+            //    this.props.change_room_status(Constants.RoomState.LOCKED);
+            //}
         });
 
         this.skylink.on('incomingStream', (peerId, stream, isSelf) => {

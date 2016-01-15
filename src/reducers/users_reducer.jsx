@@ -23,8 +23,16 @@ export default function(state = _INITIAL_STATE, action)
 
         case ADD_PEER_NO_STREAM:
 
+            if (state.length >= Constants.MaxUsersPerRoom)
+            {
+                console.log('Max number of allowed users reached. Not adding peer.');
+                return state;
+            }
+
             const newUser = action.payload;
-            return state.map(user => (user.id === newUser.id) ? newUser : user);
+            const updatedUsers = state.map(user => (user.id === newUser.id) ? newUser : user);
+
+            return [...updatedUsers, newUser];
 
         case UPDATE_PEER_STREAM:
 
@@ -33,6 +41,7 @@ export default function(state = _INITIAL_STATE, action)
             const stream = action.payload.stream;
 
             return state.map(user => {
+
                 if ((isPeerSelf && user.id === Constants.SelfId) ||
                     user.id == peerId)
                 {
@@ -40,9 +49,8 @@ export default function(state = _INITIAL_STATE, action)
                     user.updatedStreamRender += 1;
                 }
 
-
                 return user;
-            })
+            });
     }
 
     return state;
