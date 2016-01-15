@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 
 import Constants from '../constants.jsx';
 import { change_room_status } from '../actions/chatroom_actions.jsx';
-
+import User from '../Components/user_area.jsx';
 
 
 class VideoContainer extends Component {
@@ -14,6 +14,8 @@ class VideoContainer extends Component {
 
         this.skylink = new Skylink();
         this.joinRoom = this.joinRoom.bind(this);
+        this.setUpSkylink = this.setUpSkylink.bind(this);
+        this.renderUsers = this.renderUsers.bind(this);
     }
 
     // room is a string
@@ -36,11 +38,7 @@ class VideoContainer extends Component {
             });
     }
 
-    componentWillMount() {
-        console.log('Component (VideoContainer) will mount.');
-
-        //debugger;
-        // -------- set up how skylink handles events ---------
+    setUpSkylink() {
         this.skylink.setLogLevel(this.skylink.LOG_LEVEL.INFO);
 
         this.skylink.on('readyStateChange', (statusCode) => {
@@ -60,7 +58,10 @@ class VideoContainer extends Component {
             }
         });
 
-        this.skylink.on('channelError', (error) => {
+        this.skylink.on('channelError', (err) => {
+            this.props.change_room_status(Constants.RoomState.IDLE);
+
+            alert('An error has occurred with Skylink :( :( :( : ' + error.toString());
 
         });
 
@@ -87,30 +88,33 @@ class VideoContainer extends Component {
         this.skylink.on('systemAction', (action, message, reason) => {
 
         });
+    }
 
+    componentWillMount() {
+        console.log('Component (VideoContainer) will mount.');
 
+        this.setUpSkylink();
     }
 
     componentDidMount() {
         console.log('Component (VideoContainer) did mount.');
 
-        this.joinRoom('');
+        this.joinRoom('defaultroom');
 
+    }
+
+    renderUsers() {
+        return this.props.users.map(user =>
+            <User key={user.id} user={user} />);
     }
 
     render() {
         return (
             <div>
                 <h1>Room status: {this.props.room.status} </h1>
-                <h2>{this.props.users.length} Users:</h2>
-                <ul>
-                    {
-                        this.props.users.map(
-                            user =>
-                            <li key={user.id}> {user.id} -> {user.name} </li>
-                            )
-                        }
-                </ul>
+                <hr />
+                <p>{this.props.users.length} User(s):</p>
+                { this.renderUsers() }
             </div>
         );
     }

@@ -7,7 +7,8 @@ export default {
         CONNECTING: 'Connecting',
         LOCKED: 'Room is locked',
         CONNECTED: 'Connected'
-    }
+    },
+    SelfId: 0
 };
 //    };
 //});

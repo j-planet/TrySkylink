@@ -1,11 +1,14 @@
 // Reducer for USERS in a chatroom
 
+import Constants from '../constants.jsx';
+
 const _INITIAL_STATE =
     [
         {
-            id: 0,
+            id: Constants.SelfId,
             name: 'Self',
-            stream: null
+            stream: null,
+            updatedStreamRender: 0
         }
     ];
 
