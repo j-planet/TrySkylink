@@ -108,12 +108,6 @@ class VideoContainer extends Component {
 
         this.skylink.on('peerJoined', (peerId, peerInfo, isSelf) => {
 
-            if (isSelf)
-            {
-                console.log('Self issuing peerJoined.');
-                this.selfSkylinkId = peerId;
-            }
-
             if (this.props.room.status == Constants.RoomState.LOCKED ||
                 this.props.room.status == Constants.RoomState.IDLE)
             {
@@ -189,7 +183,7 @@ class VideoContainer extends Component {
             <div>
                 <h1>Room status: {this.props.room.status} </h1>
                 <hr />
-                <UsersArea selfSkylinkId={this.selfSkylinkId} />
+                <UsersArea />
             </div>
         );
     }
