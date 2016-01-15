@@ -1,4 +1,4 @@
-import Skylink from 'skylinkjs';
+// Doesn't do ANYTHING with skylink. Concerned with the state of the Room container only.
 
 export const CHANGE_ROOM_STATUS = 'CHANGE_ROOM_STATUS';
 

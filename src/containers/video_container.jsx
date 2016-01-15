@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 
 import Constants from '../constants.jsx';
 import { change_room_status } from '../actions/chatroom_actions.jsx';
+import { add_peer_no_stream } from '../actions/users_action.jsx';
 import User from '../Components/user_area.jsx';
 
 
@@ -67,6 +68,16 @@ class VideoContainer extends Component {
 
         this.skylink.on('peerJoined', (peerId, peerInfo, isSelf) => {
 
+            if (isSelf) return;
+
+            if (this.props.room.status == Constants.RoomState.LOCKED ||
+                this.props.room.status == Constants.RoomState.IDLE)
+            {
+                alert('Room unavailable.');
+                return;
+            }
+
+            this.props.add_peer_no_stream(peerId, 'Guest ' + peerId);
         });
 
         this.skylink.on('incomingStream', (peerId, stream, isSelf) => {
@@ -131,7 +142,12 @@ function mapStatetoProps(state)
 
 function mapDispatchToProps(dispatch)
 {
-    return bindActionCreators({ change_room_status }, dispatch);
+    return bindActionCreators(
+        {
+            'change_room_status': change_room_status,
+            'add_peer_no_stream': add_peer_no_stream
+        },
+        dispatch);
 }
 
 export default connect(mapStatetoProps, mapDispatchToProps)(VideoContainer);
