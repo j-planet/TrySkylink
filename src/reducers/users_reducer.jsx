@@ -1,7 +1,7 @@
 // Reducer for USERS in a chatroom
 
 import Constants from '../constants.jsx';
-import { ADD_PEER_NO_STREAM, UPDATE_PEER_STREAM } from '../actions/users_actions.jsx';
+import { ADD_PEER_NO_STREAM, UPDATE_PEER_STREAM, REMOVE_PEER } from '../actions/users_actions.jsx';
 
 const _INITIAL_STATE =
     [
@@ -64,6 +64,12 @@ export default function(state = _INITIAL_STATE, action)
 
                 return user;
             });
+
+        case REMOVE_PEER:
+
+            const skylinkIdToBeRemoved = action.payload;
+
+            return state.filter(user => user.skylinkId != skylinkIdToBeRemoved);
     }
 
     return state;

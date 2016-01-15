@@ -5,6 +5,7 @@ import Constants from '../constants.jsx';
 
 export const ADD_PEER_NO_STREAM = 'ADD_PEER_NO_STREAM';
 export const UPDATE_PEER_STREAM = 'UPDATE_PEER_STREAM';
+export const REMOVE_PEER = 'REMOVE_PEER';
 
 export function add_peer_no_stream(id, name, isSelf) {
 
@@ -33,6 +34,18 @@ export function update_peer_stream(id, stream, isSelf) {
 
     return {
         type: UPDATE_PEER_STREAM,
+        payload: payload
+    };
+}
+
+export function remove_peer(skylinkId) {
+
+    const payload = skylinkId;
+
+    console.log('Action (remove_peer) fired a payload: ', payload);
+
+    return {
+        type: REMOVE_PEER,
         payload: payload
     };
 }

@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 
 import Constants from '../constants.jsx';
 import { change_room_status } from '../actions/room_actions.jsx';
-import { add_peer_no_stream, update_peer_stream } from '../actions/users_actions.jsx';
+import { add_peer_no_stream, update_peer_stream, remove_peer } from '../actions/users_actions.jsx';
 import UsersArea from '../Components/users_area.jsx';
 
 // TODO: a sense of which users are allowed in which room
@@ -110,15 +110,28 @@ class VideoContainer extends Component {
         });
 
         this.skylink.on('peerUpdated', (peerId, peerInfo, isSelf) => {
-
+            console.log('Doing NOTHING for peerUpdated.');
         });
 
         this.skylink.on('peerLeft', (peerId, peerInfo, isSelf) => {
+            console.log(`Peer ${peerId} left.`);
 
+            // remove peer from the list of users
+            this.props.remove_peer(peerId);
+
+            // unlock room if it was full before
+            if (this.props.users.length === Constants.MaxUsersPerRoom - 1)
+            {
+                this.skylink.unlockRoom();
+            }
         });
 
         this.skylink.on('roomLock', (isLocked) => {
-            if (isLocked) this.props.change_room_status(Constants.RoomState.LOCKED);
+            this.props.change_room_status(
+                isLocked ?
+                    Constants.RoomState.LOCKED
+                    : Constants.RoomState.CONNECTED
+            );
         });
 
         this.skylink.on('systemAction', (action, message, reason) => {
@@ -169,7 +182,8 @@ function mapDispatchToProps(dispatch)
         {
             'change_room_status': change_room_status,
             'add_peer_no_stream': add_peer_no_stream,
-            'update_peer_stream': update_peer_stream
+            'update_peer_stream': update_peer_stream,
+            'remove_peer': remove_peer
         },
         dispatch);
 }
