@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import Constants from '../constants.jsx';
 
+import { connect } from 'react-redux';
+
+
 // prop:
 //      user: { id: 0, name: 'Self', stream: null }
-class UserArea extends Component {
+class SingleUserArea extends Component {
 
     constructor(props) {
         super(props);
@@ -40,13 +43,13 @@ class UserArea extends Component {
     }
 
     componentDidMount() {
-        console.log('Component (UserArea) did mount.');
+        console.log('Component (SingleUserArea) did mount.');
 
         this.attachStream();
     }
 
     componentDidUpdate() {
-        console.log('Component (UserArea) did update.');
+        console.log('Component (SingleUserArea) did update.');
 
         this.attachStream();
     }
@@ -93,6 +96,7 @@ class UserArea extends Component {
             <div>
                 <ul>
                     <li>User ID: {this.props.user.id}</li>
+                    <li>Skylink User Id: {this.props.user.skylinkId}</li>
                     <li>User Name: {this.props.user.name}</li>
                     <li>User Stream: { this.props.user.stream === null ? 'null' : 'available' }</li>
                 </ul>
@@ -105,4 +109,28 @@ class UserArea extends Component {
     }
 }
 
-export default UserArea;
+class UsersArea extends Component {
+
+    render() {
+
+        return (
+            <div>
+                <p>{this.props.users.length} User(s):</p>
+
+                {this.props.users.map(
+                    user =>
+                    <SingleUserArea key={user.id} user={user} />)}
+            </div>
+        );
+    }
+}
+
+
+// ======== REDUX STUFF ==========
+function mapStateToProps(state)
+{
+    return {
+        users: state.users
+    };
+}
+export default connect(mapStateToProps)(UsersArea);

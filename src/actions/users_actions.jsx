@@ -1,17 +1,20 @@
 // Doesn't do ANYTHING with Skylink. Concerned with the state of Users only.
 // Most of these "actions" are just pass-thrus. :(
 
+import Constants from '../constants.jsx';
+
 export const ADD_PEER_NO_STREAM = 'ADD_PEER_NO_STREAM';
 export const UPDATE_PEER_STREAM = 'UPDATE_PEER_STREAM';
 
-export function add_peer_no_stream(id, name) {
+export function add_peer_no_stream(id, name, isSelf) {
 
     const payload = {
-        id: id,
-        name: name,
+        id: isSelf ? Constants.SelfId : id,
+        name: isSelf ? 'Self' : name,
         stream: null,
         updatedStreamRender: 0,
-        error: null
+        error: null,
+        skylinkId: id
     };
 
     console.log('Action (add_peer_no_stream) fired a payload: ', payload);

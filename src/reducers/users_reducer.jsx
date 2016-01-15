@@ -10,7 +10,8 @@ const _INITIAL_STATE =
             name: 'Self',
             stream: null,
             updatedStreamRender: 0,
-            error: null
+            error: null,
+            skylinkId: null
         }
     ];
 
@@ -30,9 +31,21 @@ export default function(state = _INITIAL_STATE, action)
             }
 
             const newUser = action.payload;
-            const updatedUsers = state.map(user => (user.id === newUser.id) ? newUser : user);
+            var isUserNew = true;
+            const updatedUsers = state.map(user => {
+                    if (user.id === newUser.id)
+                    {
+                        isUserNew = false;
+                        return newUser;
+                    }
+                    else
+                    {
+                        return user;
+                    }
+                }
+            );
 
-            return [...updatedUsers, newUser];
+            return isUserNew ? [...updatedUsers, newUser] : updatedUsers;
 
         case UPDATE_PEER_STREAM:
 

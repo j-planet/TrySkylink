@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import Constants from '../constants.jsx';
 import { change_room_status } from '../actions/room_actions.jsx';
 import { add_peer_no_stream, update_peer_stream } from '../actions/users_actions.jsx';
-import UserArea from '../Components/user_area.jsx';
+import UsersArea from '../Components/users_area.jsx';
 
 // TODO: a sense of which users are allowed in which room
 
@@ -18,14 +18,25 @@ class VideoContainer extends Component {
         this.skylink = new Skylink();
         this.joinRoom = this.joinRoom.bind(this);
         this.setUpSkylink = this.setUpSkylink.bind(this);
-        this.renderUsers = this.renderUsers.bind(this);
+        //this.renderUsers = this.renderUsers.bind(this);
+        this.isRoomLocked = this.isRoomLocked.bind(this);
+    }
+
+    isRoomLocked() {
+        return this.props.room.status == Constants.RoomState.LOCKED;
     }
 
     // room is a string
     joinRoom(room) {
         if (room === undefined) return;
 
-        console.log('joinRoom. room: ', room);
+        console.log('Attempting to joinRoom. room: ', room);
+
+        if (this.isRoomLocked())
+        {
+            console.log('Room is locked. Cannot join. Giving up...');
+            return;
+        }
 
         // TODO: call some join room action
 
@@ -72,26 +83,17 @@ class VideoContainer extends Component {
 
             if (isSelf)
             {
-                console.log('.......Self issuing peerJoined. Doing nothing.');
-                return;
+                console.log('Self issuing peerJoined.');
+                this.selfSkylinkId = peerId;
             }
 
             if (this.props.room.status == Constants.RoomState.LOCKED ||
                 this.props.room.status == Constants.RoomState.IDLE)
             {
-                alert('Room unavailable.');
                 return;
             }
 
-            this.props.add_peer_no_stream(peerId, 'Guest ' + peerId);
-
-            // lock the room if it's full
-            //if (this.props.users.length === Constants.MaxUsersPerRoom)
-            //{
-            //    Console.log('The room has just become full.');
-            //    this.skylink.lockRoom();
-            //    this.props.change_room_status(Constants.RoomState.LOCKED);
-            //}
+            this.props.add_peer_no_stream(peerId, 'Guest ' + peerId, isSelf);
         });
 
         this.skylink.on('incomingStream', (peerId, stream, isSelf) => {
@@ -102,9 +104,8 @@ class VideoContainer extends Component {
             // lock the room if it's full
             if (this.props.users.length === Constants.MaxUsersPerRoom)
             {
-                Console.log('The room has just become full.');
+                console.log('The room has just become full.');
                 this.skylink.lockRoom();
-                this.props.change_room_status(Constants.RoomState.LOCKED);
             }
         });
 
@@ -117,11 +118,15 @@ class VideoContainer extends Component {
         });
 
         this.skylink.on('roomLock', (isLocked) => {
-
+            if (isLocked) this.props.change_room_status(Constants.RoomState.LOCKED);
         });
 
         this.skylink.on('systemAction', (action, message, reason) => {
-
+            if (reason === this.skylink.SYSTEM_ACTION_REASON.ROOM_LOCKED)
+            {
+                console.log('ROOM LOCK skylink systemAction fired.');
+                this.props.change_room_status(Constants.RoomState.LOCKED);
+            }
         });
     }
 
@@ -138,25 +143,19 @@ class VideoContainer extends Component {
 
     }
 
-    renderUsers() {
-        return this.props.users.map(user =>
-            <UserArea key={user.id} user={user} />);
-    }
-
     render() {
         return (
             <div>
                 <h1>Room status: {this.props.room.status} </h1>
                 <hr />
-                <p>{this.props.users.length} User(s):</p>
-                { this.renderUsers() }
+                <UsersArea selfSkylinkId={this.selfSkylinkId} />
             </div>
         );
     }
 }
 
 // ======== REDUX STUFF ==========
-function mapStatetoProps(state)
+function mapStateToProps(state)
 {
     return {
         room: state.room,
@@ -175,4 +174,4 @@ function mapDispatchToProps(dispatch)
         dispatch);
 }
 
-export default connect(mapStatetoProps, mapDispatchToProps)(VideoContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(VideoContainer);
