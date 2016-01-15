@@ -21,23 +21,23 @@ class VideoContainer extends Component {
         this.joinRoom = this.joinRoom.bind(this);
         this.setUpSkylink = this.setUpSkylink.bind(this);
         this.isRoomLocked = this.isRoomLocked.bind(this);
-    }
-
-    static getSkylinkApiKey() {
-
-        var AppRequest = $.ajax({
-                type: 'get',
-                url: 'skylink_api_key'})
-            .done((data) => {
-                console.log('AJAX REQUEST DONE.', data);
-
-            })
-            .fail((err) => { console.log('AJAX REQUEST DONE.');});
-
+        this.isSelfInRoom = this.isSelfInRoom.bind(this);
     }
 
     isRoomLocked() {
         return this.props.room.status == Constants.RoomState.LOCKED;
+    }
+
+    isSelfInRoom() {
+
+        if (this.selfSkylinkId === undefined) return false;
+
+        for (let user of this.props.users)
+        {
+            if (user.skylinkId == this.selfSkylinkId) return true;
+        }
+
+        return false;
     }
 
     // room is a string
@@ -107,6 +107,13 @@ class VideoContainer extends Component {
         });
 
         this.skylink.on('peerJoined', (peerId, peerInfo, isSelf) => {
+
+            if (isSelf)
+            {
+                this.selfSkylinkId = peerId;
+                console.log('...setting selfSkylinkId', this.selfSkylinkId);
+            }
+
 
             if (this.props.room.status == Constants.RoomState.LOCKED ||
                 this.props.room.status == Constants.RoomState.IDLE)
@@ -179,6 +186,13 @@ class VideoContainer extends Component {
     }
 
     render() {
+
+        // do not show a locked room for users who are not already in it
+        if (this.isRoomLocked() && !this.isSelfInRoom())
+        {
+            return <h1>A gated area.</h1>;
+        }
+
         return (
             <div>
                 <h1>Room status: {this.props.room.status} </h1>
