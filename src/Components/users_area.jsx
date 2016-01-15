@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import Constants from '../constants.jsx';
-
 import { connect } from 'react-redux';
 
 
@@ -21,7 +19,7 @@ class SingleUserArea extends Component {
 
     // a method instead of a property because it needs to be dynamic
     videoId() {
-        return 'video' + this.props.user.id;
+        return 'video' + this.props.user.skylinkId;
     }
 
     attachStream() {
@@ -56,11 +54,11 @@ class SingleUserArea extends Component {
 
     renderStatusMsg() {
 
-        const { stream, id, error } = this.props.user;
+        const { isSelf, stream, error } = this.props.user;
 
         var res = '';
 
-        if (stream === null && id === Constants.SelfId)
+        if (stream === null && isSelf)
         {
             res += 'Share your camera and microphone to participate in the call.';
         }
@@ -78,12 +76,12 @@ class SingleUserArea extends Component {
 
     renderVideo() {
 
-        const { stream, id, error } = this.props.user;
+        const { isSelf, stream, error } = this.props.user;
 
         if (stream !== null && !error)
         {
             // mute self to avoid sound feedback
-            if (id == Constants.SelfId)
+            if (isSelf)
                 return <video id={this.videoId()} autoPlay muted />;
             else
                 return <video id={this.videoId()} autoPlay />;
@@ -95,7 +93,6 @@ class SingleUserArea extends Component {
         return (
             <div>
                 <ul>
-                    <li>User ID: {this.props.user.id}</li>
                     <li>Skylink User Id: {this.props.user.skylinkId}</li>
                     <li>User Name: {this.props.user.name}</li>
                     <li>User Stream: { this.props.user.stream === null ? 'null' : 'available' }</li>

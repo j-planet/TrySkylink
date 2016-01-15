@@ -10,7 +10,7 @@ export const REMOVE_PEER = 'REMOVE_PEER';
 export function add_peer_no_stream(id, name, isSelf) {
 
     const payload = {
-        id: isSelf ? Constants.SelfId : id,
+        isSelf: isSelf,
         name: isSelf ? 'Self' : name,
         stream: null,
         updatedStreamRender: 0,
@@ -26,9 +26,9 @@ export function add_peer_no_stream(id, name, isSelf) {
     };
 }
 
-export function update_peer_stream(id, stream, isSelf) {
+export function update_peer_stream(id, stream) {
 
-    const payload = {id: id, stream: stream, isSelf: isSelf};
+    const payload = {skylinkId: id, stream: stream};
 
     console.log('Action (update_peer_stream) fired a payload: ', payload);
 

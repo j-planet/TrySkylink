@@ -18,26 +18,30 @@ class VideoContainer extends Component {
         super(props);
 
         this.skylink = new Skylink();
+        this.selfSkylinkId = null;
+
         this.joinRoom = this.joinRoom.bind(this);
         this.setUpSkylink = this.setUpSkylink.bind(this);
-        this.isRoomLocked = this.isRoomLocked.bind(this);
-        this.isSelfInRoom = this.isSelfInRoom.bind(this);
+        this.isRoomEnterable = this.isRoomEnterable.bind(this);
     }
 
-    isRoomLocked() {
-        return this.props.room.status == Constants.RoomState.LOCKED;
-    }
+    // cannot enter if locked and not already in room
+    isRoomEnterable() {
 
-    isSelfInRoom() {
+        const isSelfInRoom = () => {
 
-        if (this.selfSkylinkId === undefined) return false;
+            if (this.selfSkylinkId === null) return false;
 
-        for (let user of this.props.users)
-        {
-            if (user.skylinkId == this.selfSkylinkId) return true;
-        }
+            for (let user of this.props.users)
+            {
+                if (user.skylinkId == this.selfSkylinkId) return true;
+            }
 
-        return false;
+            return false;
+        };
+
+        return !(this.props.room.status == Constants.RoomState.LOCKED)
+            || isSelfInRoom();
     }
 
     // room is a string
@@ -46,9 +50,9 @@ class VideoContainer extends Component {
 
         console.log('Attempting to joinRoom. room: ', room);
 
-        if (this.isRoomLocked())
+        if (!this.isRoomEnterable())
         {
-            console.log('Room is locked. Cannot join. Giving up...');
+            console.log('Not already in a locked room. Cannot join. Giving up...');
             return;
         }
 
@@ -111,6 +115,7 @@ class VideoContainer extends Component {
             if (isSelf)
             {
                 this.selfSkylinkId = peerId;
+
                 console.log('...setting selfSkylinkId', this.selfSkylinkId);
             }
 
@@ -127,7 +132,7 @@ class VideoContainer extends Component {
         this.skylink.on('incomingStream', (peerId, stream, isSelf) => {
 
             // update stream for the user
-            this.props.update_peer_stream(peerId, stream, isSelf);
+            this.props.update_peer_stream(peerId, stream);
 
             // lock the room if it's full
             if (this.props.users.length === Constants.MaxUsersPerRoom)
@@ -187,19 +192,20 @@ class VideoContainer extends Component {
 
     render() {
 
-        // do not show a locked room for users who are not already in it
-        if (this.isRoomLocked() && !this.isSelfInRoom())
+        if (this.isRoomEnterable())
         {
+            return (
+                <div>
+                    <h1>Room status: {this.props.room.status} </h1>
+                    <hr />
+                    <UsersArea />
+                </div>
+            );
+        }
+        else {
             return <h1>A gated area.</h1>;
         }
 
-        return (
-            <div>
-                <h1>Room status: {this.props.room.status} </h1>
-                <hr />
-                <UsersArea />
-            </div>
-        );
     }
 }
 

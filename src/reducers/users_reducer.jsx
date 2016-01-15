@@ -3,17 +3,20 @@
 import Constants from '../constants.jsx';
 import { ADD_PEER_NO_STREAM, UPDATE_PEER_STREAM, REMOVE_PEER } from '../actions/users_actions.jsx';
 
-const _INITIAL_STATE =
-    [
-        {
-            id: Constants.SelfId,
-            name: 'Self',
-            stream: null,
-            updatedStreamRender: 0,
-            error: null,
-            skylinkId: null
-        }
-    ];
+// ===== FORMAT ====
+//const _INITIAL_STATE =
+//    [
+//        {
+//            isSelf: null,
+//            name: 'Self',
+//            stream: null,
+//            updatedStreamRender: 0,
+//            error: null,
+//            skylinkId: null
+//        }
+//    ];
+
+const _INITIAL_STATE = [];
 
 export default function(state = _INITIAL_STATE, action)
 {
@@ -31,9 +34,10 @@ export default function(state = _INITIAL_STATE, action)
             }
 
             const newUser = action.payload;
-            var isUserNew = true;
+            var isUserNew = true;   // is this an addition or update?
+
             const updatedUsers = state.map(user => {
-                    if (user.id === newUser.id)
+                    if (user.skylinkId === newUser.skylinkId)
                     {
                         isUserNew = false;
                         return newUser;
@@ -49,14 +53,11 @@ export default function(state = _INITIAL_STATE, action)
 
         case UPDATE_PEER_STREAM:
 
-            const peerId = action.payload.id;
-            const isPeerSelf = action.payload.isSelf;
-            const stream = action.payload.stream;
+            const { skylinkId, stream } = action.payload;
 
             return state.map(user => {
 
-                if ((isPeerSelf && user.id === Constants.SelfId) ||
-                    user.id == peerId)
+                if (user.skylinkId == skylinkId)
                 {
                     user.stream = stream;
                     user.updatedStreamRender += 1;
