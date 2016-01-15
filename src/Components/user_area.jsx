@@ -3,35 +3,36 @@ import Constants from '../constants.jsx';
 
 // prop:
 //      user: { id: 0, name: 'Self', stream: null }
-class User extends Component {
+class UserArea extends Component {
 
     constructor(props) {
         super(props);
 
-        this.userId = this.props.user.id;
-        this.name = this.props.user.name;
-        this.stream = this.props.user.stream;
-        this.updatedStreamRender = this.props.user.updatedStreamRender;
-        this.error = this.props.user.error;
-
         this.currentStreamRender = 0;
-        this.videoId = 'video' + this.userId;
 
         this.attachStream = this.attachStream.bind(this);
         this.renderVideo = this.renderVideo.bind(this);
         this.renderStatusMsg = this.renderStatusMsg.bind(this);
+        this.videoId = this.videoId.bind(this);
     }
 
+    // a method instead of a property because it needs to be dynamic
+    videoId() {
+        return 'video' + this.props.user.id;
+    }
 
     attachStream() {
-        if (this.stream !== null &&
-            this.updatedStreamRender > this.currentStreamRender)
+
+        const { stream, updatedStreamRender } = this.props.user;
+
+        if (stream !== null &&
+            updatedStreamRender > this.currentStreamRender)
         {
             console.log('Attaching stream...');
 
             window.attachMediaStream(
-                document.getElementById(this.videoId),
-                this.stream
+                document.getElementById(this.videoId()),
+                stream
             );
 
             this.currentStreamRender += 1;
@@ -39,30 +40,32 @@ class User extends Component {
     }
 
     componentDidMount() {
-        console.log('Component (User) did mount.');
+        console.log('Component (UserArea) did mount.');
 
         this.attachStream();
     }
 
     componentDidUpdate() {
-        console.log('Component (User) did update.');
+        console.log('Component (UserArea) did update.');
 
         this.attachStream();
     }
 
     renderStatusMsg() {
 
+        const { stream, id, error } = this.props.user;
+
         var res = '';
 
-        if (this.stream === null && this.userId === Constants.SelfId)
+        if (stream === null && id === Constants.SelfId)
         {
             res += 'Share your camera and microphone to participate in the call.';
         }
-        else if (this.error)
+        else if (error)
         {
             res += 'Stream could not be established.';
         }
-        else if (this.stream === null)
+        else if (stream === null)
         {
             res += 'Joining...';
         }
@@ -71,13 +74,16 @@ class User extends Component {
     }
 
     renderVideo() {
-        if (this.stream !== null && !this.error)
+
+        const { stream, id, error } = this.props.user;
+
+        if (stream !== null && !error)
         {
             // mute self to avoid sound feedback
-            if (this.userId == Constants.SelfId)
-                return <video id={this.videoId} autoplay muted />;
+            if (id == Constants.SelfId)
+                return <video id={this.videoId()} autoPlay muted />;
             else
-                return <video id={this.videoId} autoplay />;
+                return <video id={this.videoId()} autoPlay />;
         }
     }
 
@@ -87,7 +93,8 @@ class User extends Component {
             <div>
                 <ul>
                     <li>User ID: {this.props.user.id}</li>
-                    <li>User Name: {this.name}</li>
+                    <li>User Name: {this.props.user.name}</li>
+                    <li>User Stream: { this.props.user.stream === null ? 'null' : 'available' }</li>
                 </ul>
 
                 { this.renderStatusMsg() }
@@ -98,4 +105,4 @@ class User extends Component {
     }
 }
 
-export default User;
+export default UserArea;

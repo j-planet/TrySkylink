@@ -8,7 +8,8 @@ export default {
         LOCKED: 'Room is locked',
         CONNECTED: 'Connected'
     },
-    SelfId: 0
+    SelfId: 0,
+    MaxUsersPerRoom: 2
 };
 //    };
 //});

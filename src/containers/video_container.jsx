@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Constants from '../constants.jsx';
-import { change_room_status } from '../actions/chatroom_actions.jsx';
-import { add_peer_no_stream } from '../actions/users_action.jsx';
-import User from '../Components/user_area.jsx';
+import { change_room_status } from '../actions/room_actions.jsx';
+import { add_peer_no_stream, update_peer_stream } from '../actions/users_actions.jsx';
+import UserArea from '../Components/user_area.jsx';
+
+// TODO: a sense of which users are allowed in which room
 
 
 class VideoContainer extends Component {
@@ -82,6 +84,16 @@ class VideoContainer extends Component {
 
         this.skylink.on('incomingStream', (peerId, stream, isSelf) => {
 
+            // update stream for the user
+            this.props.update_peer_stream(peerId, stream, isSelf);
+
+            // lock the room if it's full
+            if (this.props.users.length === Constants.MaxUsersPerRoom)
+            {
+                Console.log('The room has just become full.');
+                this.skylink.lockRoom();
+                this.props.change_room_status(Constants.RoomState.LOCKED);
+            }
         });
 
         this.skylink.on('peerUpdated', (peerId, peerInfo, isSelf) => {
@@ -116,7 +128,7 @@ class VideoContainer extends Component {
 
     renderUsers() {
         return this.props.users.map(user =>
-            <User key={user.id} user={user} />);
+            <UserArea key={user.id} user={user} />);
     }
 
     render() {
@@ -145,7 +157,8 @@ function mapDispatchToProps(dispatch)
     return bindActionCreators(
         {
             'change_room_status': change_room_status,
-            'add_peer_no_stream': add_peer_no_stream
+            'add_peer_no_stream': add_peer_no_stream,
+            'update_peer_stream': update_peer_stream
         },
         dispatch);
 }

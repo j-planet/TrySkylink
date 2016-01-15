@@ -6,7 +6,7 @@
 import _ from 'lodash';
 
 import Constants from './../constants.jsx';
-import { CHANGE_ROOM_STATUS } from '../actions/chatroom_actions.jsx';
+import { CHANGE_ROOM_STATUS } from '../actions/room_actions.jsx';
 
 
 
