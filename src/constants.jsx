@@ -1,6 +1,3 @@
-//define([], () => {
-//    return {
-
 export default {
     RoomState: {
         IDLE: 'Not connected',
@@ -11,5 +8,3 @@ export default {
     SelfId: 0,
     MaxUsersPerRoom: 2
 };
-//    };
-//});

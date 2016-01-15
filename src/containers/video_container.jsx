@@ -6,6 +6,8 @@ import Constants from '../constants.jsx';
 import { change_room_status } from '../actions/room_actions.jsx';
 import { add_peer_no_stream, update_peer_stream, remove_peer } from '../actions/users_actions.jsx';
 import UsersArea from '../Components/users_area.jsx';
+var $ = require('jquery');
+
 
 // TODO: a sense of which users are allowed in which room
 
@@ -18,8 +20,20 @@ class VideoContainer extends Component {
         this.skylink = new Skylink();
         this.joinRoom = this.joinRoom.bind(this);
         this.setUpSkylink = this.setUpSkylink.bind(this);
-        //this.renderUsers = this.renderUsers.bind(this);
         this.isRoomLocked = this.isRoomLocked.bind(this);
+    }
+
+    static getSkylinkApiKey() {
+
+        var AppRequest = $.ajax({
+                type: 'get',
+                url: 'skylink_api_key'})
+            .done((data) => {
+                console.log('AJAX REQUEST DONE.', data);
+
+            })
+            .fail((err) => { console.log('AJAX REQUEST DONE.');});
+
     }
 
     isRoomLocked() {
@@ -40,16 +54,28 @@ class VideoContainer extends Component {
 
         // TODO: call some join room action
 
-        this.skylink.init(
+        $.ajax(
             {
-                apiKey: '86c593e0-6ad9-4ccf-8220-f40f8c23cdef',
-                defaultRoom: room
-            }, () => {
-                this.skylink.joinRoom({
-                    audio: true,
-                    video: true
-                })
-            });
+                type: 'get',
+                url: 'skylink_api_key'
+            })
+            .done((apiKey) => {
+
+                console.log('AJAX retrieved successfully.');
+
+                this.skylink.init(
+                    {
+                        apiKey: apiKey,
+                        defaultRoom: room
+                    },
+                    () => {
+                        this.skylink.joinRoom({
+                            audio: true,
+                            video: true
+                        })
+                    });
+            })
+            .fail((err) => { console.log('AJAX REQUEST DONE.');});
     }
 
     setUpSkylink() {
@@ -73,6 +99,7 @@ class VideoContainer extends Component {
         });
 
         this.skylink.on('channelError', (err) => {
+            console.log('Channel error!!!');
             this.props.change_room_status(Constants.RoomState.IDLE);
 
             alert('An error has occurred with Skylink :( :( :( : ' + error.toString());
@@ -106,6 +133,7 @@ class VideoContainer extends Component {
             {
                 console.log('The room has just become full.');
                 this.skylink.lockRoom();
+                console.log('LOCKED THE ROOM.');
             }
         });
 

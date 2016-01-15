@@ -44,6 +44,12 @@ else
 
 
 app
+    .get('/skylink_api_key', function(req, res) {
+        console.log('Received request for skylink_api_key');
+
+        res.type('text/plain');
+        res.send(process.env.SKYLINK_API_KEY);
+    })
     .get('*', function (req, res)
     {
         console.log('get called');
