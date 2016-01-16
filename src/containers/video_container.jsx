@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+var $ = require('jquery');
 
 import Constants from '../constants.jsx';
 import { change_room_status } from '../actions/room_actions.jsx';
-import { add_peer_no_stream, update_peer_stream, remove_peer } from '../actions/users_actions.jsx';
+import { add_peer_no_stream, update_peer_stream, update_peer_mute, remove_peer } from '../actions/users_actions.jsx';
 import UsersArea from '../Components/users_area.jsx';
-var $ = require('jquery');
 
 
 // TODO: a sense of which users are allowed in which room
@@ -124,8 +124,6 @@ class VideoContainer extends Component {
             if (isSelf)
             {
                 this.selfSkylinkId = peerId;
-
-                console.log('...setting selfSkylinkId', this.selfSkylinkId);
             }
 
 
@@ -135,7 +133,8 @@ class VideoContainer extends Component {
                 return;
             }
 
-            this.props.add_peer_no_stream(peerId, 'Guest ' + peerId, isSelf);
+            this.props.add_peer_no_stream(peerId, 'Guest ' + peerId, isSelf,
+                peerInfo.mediaStatus.audioMuted, peerInfo.mediaStatus.videoMuted);
         });
 
         this.skylink.on('incomingStream', (peerId, stream, isSelf) => {
@@ -153,7 +152,7 @@ class VideoContainer extends Component {
         });
 
         this.skylink.on('peerUpdated', (peerId, peerInfo, isSelf) => {
-            console.log('Doing NOTHING for peerUpdated.');
+            this.props.update_peer_mute(peerId, peerInfo.mediaStatus.audioMuted, peerInfo.mediaStatus.videoMuted);
         });
 
         this.skylink.on('peerLeft', (peerId, peerInfo, isSelf) => {
@@ -207,7 +206,7 @@ class VideoContainer extends Component {
                 <div>
                     <h1>Room status: {this.props.room.status} </h1>
                     <hr />
-                    <UsersArea />
+                    <UsersArea skylinkObj={this.skylink} />
                 </div>
             );
         }
@@ -234,6 +233,7 @@ function mapDispatchToProps(dispatch)
             'change_room_status': change_room_status,
             'add_peer_no_stream': add_peer_no_stream,
             'update_peer_stream': update_peer_stream,
+            'update_peer_mute': update_peer_mute,
             'remove_peer': remove_peer
         },
         dispatch);

@@ -1,7 +1,7 @@
 // Reducer for USERS in a chatroom
 
 import Constants from '../constants.jsx';
-import { ADD_PEER_NO_STREAM, UPDATE_PEER_STREAM, REMOVE_PEER } from '../actions/users_actions.jsx';
+import { ADD_PEER_NO_STREAM, UPDATE_PEER_STREAM, UPDATE_PEER_MUTE, REMOVE_PEER } from '../actions/users_actions.jsx';
 
 // ===== FORMAT ====
 //const _INITIAL_STATE =
@@ -11,8 +11,9 @@ import { ADD_PEER_NO_STREAM, UPDATE_PEER_STREAM, REMOVE_PEER } from '../actions/
 //            name: 'Self',
 //            stream: null,
 //            updatedStreamRender: 0,
-//            error: null,
-//            skylinkId: null
+//            skylinkId: null,
+//            audioMute: false,
+//            videoMute: false,
 //        }
 //    ];
 
@@ -65,6 +66,22 @@ export default function(state = _INITIAL_STATE, action)
 
                 return user;
             });
+
+        case UPDATE_PEER_MUTE:
+
+            const {id, audioMute, videoMute } = action.payload;
+
+            return state.map(user => {
+
+                if (user.skylinkId == id)
+                {
+                    user.audioMute = audioMute;
+                    user.videoMute = videoMute;
+                }
+
+                return user;
+            });
+
 
         case REMOVE_PEER:
 

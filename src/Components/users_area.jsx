@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 
 
 // prop:
-//      user: { id: 0, name: 'Self', stream: null }
+//      user: { id: 0, name: 'Self', stream: null },
+//      skylinkObj
 class SingleUserArea extends Component {
 
     constructor(props) {
@@ -14,7 +15,10 @@ class SingleUserArea extends Component {
         this.attachStream = this.attachStream.bind(this);
         this.renderVideo = this.renderVideo.bind(this);
         this.renderStatusMsg = this.renderStatusMsg.bind(this);
+        this.renderControlButtons = this.renderControlButtons.bind(this);
         this.videoId = this.videoId.bind(this);
+        this.handleAudioMute = this.handleAudioMute.bind(this);
+        this.handleVideoMute = this.handleVideoMute.bind(this);
     }
 
     // a method instead of a property because it needs to be dynamic
@@ -88,24 +92,69 @@ class SingleUserArea extends Component {
         }
     }
 
+    handleAudioMute() {
+        console.log('Muting Audio for user ', this.props.user.id);
+        this.props.skylinkObj[this.props.user.audioMute ? 'enableAudio' : 'disableAudio']();
+    }
+
+    handleVideoMute() {
+        console.log('Muting Video for user ', this.props.user.id);
+        this.props.skylinkObj[this.props.user.videoMute ? 'enableVideo' : 'disableVideo']();
+    }
+
+    renderControlButtons() {
+        if (this.props.user.isSelf)
+        {
+            return (
+                <span className="input-group">
+                    <button onClick={this.handleAudioMute} > { this.props.user.audioMute ? 'Turn Audio On' : 'Turn Audio Off'} </button>
+                    <button onClick={this.handleVideoMute} > { this.props.user.videoMute ? 'Turn Video On' : 'Turn Video Off'} </button>
+                </span>
+            );
+        }
+    }
+
     render() {
 
         return (
             <div>
-                <ul>
-                    <li>Skylink User Id: {this.props.user.skylinkId}</li>
-                    <li>User Name: {this.props.user.name}</li>
-                    <li>User Stream: { this.props.user.stream === null ? 'null' : 'available' }</li>
-                </ul>
+
+                <table className="table table-hover">
+
+                    <thead>
+                    <tr>
+                        <th> Skylink ID </th>
+                        <th> Name </th>
+                        <th> Stream </th>
+                        <th> Audio </th>
+                        <th> Video </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td> { this.props.user.skylinkId } </td>
+                        <td> { this.props.user.name } </td>
+                        <td> { this.props.user.stream === null ? 'null' : 'available' } </td>
+                        <td> { this.props.user.audioMute ? 'Off' : 'On' } </td>
+                        <td> { this.props.user.videoMute ? 'Off' : 'On' } </td>
+                    </tr>
+                    </tbody>
+
+                </table>
 
                 { this.renderStatusMsg() }
                 { this.renderVideo() }
+                { this.renderControlButtons() }
+
+                <hr />
 
             </div>
         );
     }
 }
 
+// prop: skylinkObj
 class UsersArea extends Component {
 
     render() {
@@ -115,8 +164,8 @@ class UsersArea extends Component {
                 <p>{this.props.users.length} User(s):</p>
 
                 {this.props.users.map(
-                    user =>
-                    <SingleUserArea key={user.id} user={user} />)}
+                    user => <SingleUserArea key={user.id} user={user} skylinkObj={this.props.skylinkObj} />
+                    )}
             </div>
         );
     }
