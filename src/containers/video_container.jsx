@@ -72,14 +72,23 @@ class VideoContainer extends Component {
                         apiKey: apiKey,
                         defaultRoom: room
                     },
-                    () => {
+                    (error) => {
+
+                        if (error)
+                        {
+                            alert('An error has occurred while connecting to SkylinkJS.');
+                            return;
+                        }
+
                         this.skylink.joinRoom({
                             audio: true,
                             video: true
                         })
                     });
             })
-            .fail((err) => { console.log('AJAX REQUEST DONE.');});
+            .fail((err) => {
+                alert('An error has occurred while retrieving the Skylink API key from the server.');
+            });
     }
 
     setUpSkylink() {
